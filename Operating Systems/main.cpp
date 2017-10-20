@@ -5,7 +5,7 @@ using namespace std;
 
 int main()
 {
-	cout<<"Hello world, no threads!"<<endl;
+	cout<<"Hello world, no threads! Checking if *.o will be ignored"<<endl;
 
 	return 0;
 }
