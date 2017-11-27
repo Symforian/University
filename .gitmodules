@@ -1,0 +1,3 @@
+[submodule "Operating Systems/P2"]
+	path = Operating Systems/P2
+	url = git@github.com:Symforian/P2.git
