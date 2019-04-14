@@ -1,0 +1,288 @@
+#include <stdio.h>
+#include <stdlib.h>
+void zamiana(int n);
+void zamianaOVER5K(int n);
+int ile(int n);
+void dl(int n);
+int main()
+{
+    int n,pom;
+    scanf("%d",&n);
+    if(n<1 || n>999999)
+    {
+        printf("Liczba nie jest z zakresu [1,999999]\n");
+        return 0;
+
+    }
+    if(n<=4999)
+    {
+        printf("%d->",n);
+        zamiana(n);
+    }
+    else
+    {
+        dl(n);
+        pom=ile(n);
+        for(int i = 0; i<pom; i++)
+            printf("_");
+        printf("\n%d->",n);
+        zamianaOVER5K(n);
+    }
+
+    return 0;
+}
+int ile(int n)
+{
+    int ilee=0;
+    while(n>=1000)
+    {
+        if(n>=900000)
+        {
+            ilee+=2;
+            n-=900000;
+        }
+        else
+            if(n>=500000)
+        {
+            ilee++;
+            n-=500000;
+        }
+        else
+            if(n>=400000)
+        {
+            ilee+=2;
+            n-=400000;
+        }
+        else
+            if(n>=100000)
+        {
+            ilee++;
+            n-=100000;
+        }
+        else
+            if(n>=90000)
+        {
+            ilee+=2;
+            n-=90000;
+        }
+        else
+            if(n>=50000)
+        {
+            ilee++;
+            n-=50000;
+        }
+        else
+            if(n>=40000)
+        {
+            ilee+=2;
+            n-=40000;
+        }
+        else
+            if(n>=10000)
+        {
+            ilee++;
+            n-=10000;
+        }
+        else
+            if(n>=9000)
+        {
+            ilee+=2;
+            n-=9000;
+        }
+        else
+            if(n>=5000)
+        {
+            ilee++;
+            n-=5000;
+        }
+        else
+            if(n>=4000)
+        {
+            ilee+=2;
+            n-=4000;
+        }
+        else
+            if(n>=1000)
+        {
+            ilee++;
+            n-=1000;
+        }
+    }
+    return ilee;
+}
+void zamiana(int n)
+{
+    while(n!=0)
+    {
+        if(n>=1000)
+        {
+            printf("M");
+            n-=1000;
+        }
+        else
+            if(n>=900)
+        {
+            printf("CM");
+            n-=900;
+        }
+        else
+            if(n>=500)
+        {
+            printf("D");
+            n-=500;
+        }
+        else
+            if(n>=400)
+        {
+            printf("CD");
+            n-=400;
+        }
+        else
+            if(n>=100)
+        {
+            printf("C");
+            n-=100;
+        }
+        else
+            if(n>=90)
+        {
+            printf("XC");
+            n-=90;
+        }
+        else
+            if(n>=50)
+        {
+            printf("L");
+            n-=50;
+        }
+        else
+            if(n>=40)
+        {
+            printf("XL");
+            n-=40;
+        }
+        else
+            if(n>=10)
+        {
+            printf("X");
+            n-=10;
+        }
+        else
+            if(n==9)
+        {
+            printf("IX");
+            n-=9;
+        }
+        else
+            if(n>=5)
+        {
+            printf("V");
+            n-=5;
+        }
+        else
+            if(n>=4)
+        {
+            printf("IV");
+            n-=4;
+        }
+        else
+            if(n>=1)
+        {
+            printf("I");
+            n-=1;
+        }
+    }
+}
+void zamianaOVER5K(int n)
+{
+    while(n!=0)
+    {
+            if(n>=900000)
+        {
+            printf("CM");
+            n-=900000;
+        }
+        else
+            if(n>=500000)
+        {
+            printf("D");
+            n-=500000;
+        }
+        else
+            if(n>=400000)
+        {
+            printf("CD");
+            n-=400000;
+        }
+        else
+            if(n>=100000)
+        {
+            printf("C");
+            n-=100000;
+        }
+        else
+            if(n>=90000)
+        {
+            printf("XC");
+            n-=90000;
+        }
+        else
+            if(n>=50000)
+        {
+            printf("L");
+            n-=50000;
+        }
+        else
+            if(n>=40000)
+        {
+            printf("XL");
+            n-=40000;
+        }
+        else
+            if(n>=10000)
+        {
+            printf("X");
+            n-=10000;
+        }
+        else
+            if(n>=9000)
+        {
+            printf("IX");
+            n-=9000;
+        }
+        else
+            if(n>=5000)
+        {
+            printf("V");
+            n-=5000;
+        }
+        else
+            if(n>=4000)
+        {
+            printf("IV");
+            n-=4000;
+        }
+        else
+            if(n>=1000)
+        {
+            printf("I");
+            n-=1000;
+        }
+        else
+        {
+            zamiana(n);
+            n=0;
+        }
+    }
+}
+void dl(int n)
+{
+    int dlu=0;
+    for(int i =0;n>0;i++)
+    {
+        n/=10;
+        dlu++;
+        printf(" ");
+    }
+    printf("  ");
+}

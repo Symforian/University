@@ -1,0 +1,14 @@
+void throw_a_coin();
+void clearSequences();
+void addSequence(int player, int place, int sequence_numb);
+void addSequenceToFirstEmptyPlace(int player, int sequence_numb);
+bool isThere(int player, int sequence_numb);
+void removeSequence(int player, int place);
+bool canIEndMyTurn(int player);
+void turnPlayerAround(int player, int when);
+int getSequence(int player,int place);
+int isTurned(int player,int when);
+void clearCombination();
+void combineSequences();
+int getAction(int index);
+void clearONLYoneCombination(int index);
