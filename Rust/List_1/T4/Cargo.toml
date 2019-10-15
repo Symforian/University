@@ -1,0 +1,7 @@
+[package]
+name = "task_3"
+version = "0.1.0"
+
+[[bin]]
+name = "square_area_to_circle"
+path = "square_area_to_circle.rs"
