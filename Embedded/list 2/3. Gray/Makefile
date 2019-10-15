@@ -1,6 +1,6 @@
 
-PRG            = led
-OBJ            = led.o
+PRG            = gray
+OBJ            = gray.o
 PROGRAMMER     = arduino
 PORT           = /dev/ttyUSB0
 MCU_TARGET     = atmega328p 
