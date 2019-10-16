@@ -11,9 +11,9 @@
 #define LED_DDR DDRB
 #define LED_PORT PORTB
 
-#define BTN PD2
-#define BTN_PIN PIND
-#define BTN_PORT PORTD
+#define BTN PB0
+#define BTN_PIN PINB
+#define BTN_PORT PORTB
 
 #define DOT 1000
 #define LINE 3000
@@ -66,8 +66,8 @@ char morseChar(uint8_t x,uint8_t n,uint8_t i) {
     //printf("%d\r\n",n);
     if( x == 0) return morse[n];
     if( x&1 )
-        return morseChar(x>>2,n-i,i>>1);
-    return morseChar(x>>2,n+i,i>>1);
+        return morseChar(x>>2,n-i,i>>1); //dot
+    return morseChar(x>>2,n+i,i>>1); //line
 }
 char morseCode(uint8_t x){
     return morseChar(x,START,ITER);
@@ -81,7 +81,7 @@ int main(void) {
   fdev_setup_stream(&uart_file, uart_transmit, uart_receive, _FDEV_SETUP_RW);
   stdin = stdout = stderr = &uart_file;
     LED_DDR = 0xff; // led as output
-    DDRD &= ~(1 << BTN);    /* Data Direction Register D:
+    DDRB &= ~(1 << BTN);    /* Data Direction Register B:
                                    enables input. */
     BTN_PORT |= (1<<BTN);  // pull up 
     uint8_t buffer = 0;
@@ -93,6 +93,7 @@ int main(void) {
   while (1) {
     int dot =0;
     if(pressedHalfDot()){
+        dot = 1;
         if(pressedHalfDot()){
             if(pressedHalfDot()){
                 if(pressedHalfDot()){
@@ -101,18 +102,26 @@ int main(void) {
                             LED_PORT |= _BV(LED);
                             _delay_ms(500);
                             LED_PORT &= ~_BV(LED);
-                            if(buffer >0 && spaces == 2){ buffer = 0; spaces = 0;}
-                            /*printf("_\r\n"); */buffer |= 2;spaces = 0;
-                        }// else dot=1;
-                    }// else dot = 1;
-                } else dot = 1;
+                            if(buffer >0  && spaces == 3) { buffer |= (2<<4); spaces = 2;}
+                            else if(buffer >0 && spaces == 2){ buffer = (buffer<<2) |  (2<<4);}
+                            else{
+                                buffer |= 2;spaces = 0; dot = 0;
+                            }
+                            //printf("-");
+                        } 
+                    } 
+                } 
                            
-            } else  dot=1;
-        } else dot=1;
+            } 
+        } 
     }//if not halfdot - ignore
  if(dot){
-            if(buffer >0 && spaces == 2){ buffer = 0; spaces = 0;}
-            /*printf("!.\r\n"); */buffer |= 1; spaces = 0;
+//printf(".");
+            if(buffer >0  && spaces == 3) { buffer |= (1<<4); spaces = 2;}
+            else if(buffer >0 && spaces == 2){ buffer = (buffer<<2) | (1<<4);}
+            else{
+                buffer |= 1; spaces = 0;
+            }
  }
  if(!bit_is_clear(BTN_PIN, BTN)){
     _delay_ms(DOT);
@@ -130,12 +139,11 @@ int main(void) {
         }
         //else  // reset if 2 spaces between words
         else{
-           // printf("%d  )\n\r",buffer);
             if((buffer & 0b11000000)==0)
                 buffer<<=2;
-                LED_PORT |= _BV(LED);
-                _delay_ms(100);
-                LED_PORT &= ~_BV(LED);
+            LED_PORT |= _BV(LED);
+            _delay_ms(100);
+            LED_PORT &= ~_BV(LED);
             spaces++;
             }
         } 
