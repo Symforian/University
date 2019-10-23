@@ -1,16 +1,15 @@
 def compress(text):
     n = 0
-    pl = ""
+    prev_letter = ""
     text += "$"
     returntext = text
-    for l in text:
-        if (pl == l):
+    for letter in text:
+        if (prev_letter == letter):
             n += 1
         elif (n > 0):
-            n += 1
-            returntext = returntext.replace(pl*(n-1), str(n), 1)
+            returntext = returntext.replace(prev_letter*(n), str(n+1), 1)
             n = 0
-        pl = l
+        prev_letter = letter
     return returntext[0:-1]
 
 

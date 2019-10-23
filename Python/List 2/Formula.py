@@ -1,5 +1,9 @@
 from itertools import product
 
+# Uwagi/TODO:
+# poprawić permsVarVal - niepotrzebne
+# Wydzielić klasę binop, nad and or pod Formula
+
 
 class Formula:
 

@@ -35,14 +35,6 @@ def perf_funct(n):
                 if x % y == 0), range(1, n+1)))
 
 
-# def pot2(n):
-#    lst = list(filter(lambda y: y <= n,
-#            map(lambda x: pow(2, x), range(0, n))))
-#    i = 0
-#    while True:
-#        reduce(sum, lst[0, i])
-
-
 snip0 = '''
 def isPrime(n):
     if n in [2, 3]:
@@ -87,10 +79,10 @@ perf_funct(1000)
 '''
 setup = "from math import sqrt, floor"
 
-print(timeit(snip0, setup, number=1))
-print(timeit(snip1, setup, number=1))
-print(timeit(snip2, setup, number=1))
+print(timeit(snip0, setup, number=100))
+print(timeit(snip1, setup, number=100))
+print(timeit(snip2, setup, number=100))
 print(perf_imp(1000))
 print(perf_comprehension(1000))
 print(perf_funct(1000))
-# print(pot2(20))
+print(perf_funct(20))

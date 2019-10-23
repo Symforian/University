@@ -13,3 +13,4 @@ def pierwiastek(n):
 print(pierwiastek(49))
 print(pierwiastek(9))
 print(pierwiastek(8))
+print(pierwiastek(4))

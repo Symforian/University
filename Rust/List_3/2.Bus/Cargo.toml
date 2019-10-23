@@ -1,0 +1,6 @@
+[package]
+name = "task_1" # the name of the package
+version = "0.1.0"    # the current version, obeying semver
+[[bin]]
+name = "bus"
+path = "bus.rs"
