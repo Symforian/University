@@ -60,23 +60,24 @@ int main()
   stdin = stdout = stderr = &uart_file;
   // zainicjalizuj ADC
   adc_init();
-  // mierz napięcie
-    int i = 0;
+
+   uint8_t i = 0;
   while(1) {
+   if(i == 0){
+        LED_PORT |= _BV(LED);
+        _delay_ms(1000);
+        i++;
+    } else
+       { LED_PORT &= ~_BV(LED);
+        _delay_ms(1000);
+        i--;
+        }
+  // mierz napięcie
     ADCSRA |= _BV(ADSC); // wykonaj konwersję
     while (!(ADCSRA & _BV(ADIF))); // czekaj na wynik
     ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
     uint32_t v = ADC; // weź zmierzoną wartość (0..1023)
-    printf("Odczytano: %"PRIu32"\r\n", (102400*11)/v);
-   if(i > 0){
-        LED_PORT |= _BV(LED);
-        _delay_ms(100);
-        i--;
-    } else
-       { LED_PORT &= ~_BV(LED);
-        _delay_ms(100);
-        i++;
-        }
+    printf("Odczytano: %"PRIu32" %"PRIu8"\r\n", (102400*11)/v,i);
 
   }
 }
