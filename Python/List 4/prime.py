@@ -25,10 +25,10 @@ def prime_comprehension(n):
 
 
 def prime_funct(n):
-    ret = range(2, n+1)
-    for v in range(2, int(floor(sqrt(n)))+1):
-        ret = list(filter(lambda x: (x % v != 0) or x in [2, 3], ret))
-    return ret
+    return list(filter(lambda x: all(x % y != 0 for y in
+                                     range(2, int(floor(sqrt(x)))+1))
+                       or x in [2, 3],
+                       range(2, n+1)))
 
 
 snip0 = '''
@@ -60,10 +60,10 @@ prime_comprehension(20)
 '''
 snip2 = '''
 def prime_funct(n):
-    ret = range(2, n+1)
-    for v in range(2, int(floor(sqrt(n)))+1):
-        ret = list(filter(lambda x: (x % v != 0) or x in [2, 3], ret))
-    return ret
+    return list(filter(lambda x: all(x % y != 0 for y in
+                                     range(2, int(floor(sqrt(x)))+1))
+                       or x in [2, 3],
+                       range(2, n+1)))
 
 
 prime_funct(20)
