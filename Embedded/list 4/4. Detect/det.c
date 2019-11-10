@@ -1,9 +1,14 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include <util/delay.h>
-#define LED_DDR DDRB
+#define LED PB5
 #define LED_PORT PORTB
-#define LED PB1
+#define LED_DDR DDRB
+#define LED_IR PB1
+#define DET PB0
+#define IR_DDR DDRB
+#define IR_PORT PORTB
+#define IR_PIN PINB
 #define BAUD 9600                          // baudrate
 #define UBRR_VALUE ((F_CPU)/16/(BAUD)-1)   // zgodnie ze wzorem
 // inicjalizacja UART
@@ -37,45 +42,42 @@ void timer1_init()
 {
   // ustaw tryb licznika
   // COM1A = 10   -- non-inverting mode
-  // WGM1  = 1110 -- fast PWM top=ICR1
+  // WGM1  = 10 -- fast pwm top=OCR1
   // CS1   = 001  -- prescaler 1
-  // ICR1  = 1023
-  // częstotliwość 16e6/(1*(1+1023)) = 1 Hz
+  // ICR1  = 15624
+  // częstotliwość 16e6/(1024*(1+15624)) = 1 Hz
   // wzór: datasheet 20.12.3 str. 164
-  ICR1 = 2999;
+  //16e6/(8*(1+51)) ~  384000 Hz
+  //16e6/(1*(1+421)) ~ 37914.69194 Hz
+  ICR1 = 421;
   TCCR1A = _BV(COM1A1) | _BV(WGM11);
-  TCCR1B = _BV(WGM12) | _BV(WGM13) | _BV(CS10);
-  // ustaw pin OC1A (PB1) jako wyjście
-  DDRB |= _BV(PB1);
-}
-// inicjalizacja ADC
-void adc_init()
-{
-  ADMUX   = _BV(REFS0); // referencja AVcc, wejście ADC0
-  DIDR0   = _BV(ADC0D); // wyłącz wejście cyfrowe na ADC0
-  // częstotliwość zegara ADC 125 kHz (16 MHz / 128)
-  ADCSRA  = _BV(ADPS0) | _BV(ADPS1) | _BV(ADPS2); // preskaler 128
-  ADCSRA |= _BV(ADEN); // włącz ADC
+  TCCR1B = _BV(CS10) | _BV(WGM12) | _BV(WGM13);
+  // ustaw pin OC0A (PB0) jako wyjście
+  //IR_DDR |= _BV(LED_IR);
 }
 FILE uart_file;
-int main()//
-{                          
-    uint16_t const lightlv[16] = {0,1,4,9,15,20,30,50,70,90,150,200,300,400,600,3000};
-  // zainicjalizuj UART     
-  uart_init();
+int main()
+{
+  timer1_init();
+uart_init();
   // skonfiguruj strumienie wejścia/wyjścia
   fdev_setup_stream(&uart_file, uart_transmit, uart_receive, _FDEV_SETUP_RW);
   stdin = stdout = stderr = &uart_file;
+    IR_DDR |= _BV(LED_IR);
+    LED_DDR  |= _BV(LED);
+    IR_DDR &= ~_BV(DET);
+    IR_PORT |= _BV(DET);
   // uruchom licznik
-  timer1_init();
-  adc_init();
+
     while(1){
-    ADCSRA |= _BV(ADSC); // wykonaj konwersję
-LED_PORT &= ~_BV(LED);
-    while (!(ADCSRA & _BV(ADIF))); // czekaj na wynik
-    ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
-    uint16_t v = ADC; // weź zmierzoną wartość (0..1023)
-    ICR1 = lightlv[v>>6];
+        OCR1A = ICR1/4;
+        if(IR_PIN & _BV(DET))
+            LED_PORT &= ~_BV(LED);
+        else
+            LED_PORT |= _BV(LED);
+
+
+
     }
 }
 

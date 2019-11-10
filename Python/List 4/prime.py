@@ -21,7 +21,7 @@ def prime_imp(n):
 
 def prime_comprehension(n):
     return [x for x in range(2, n+1)
-            if not any(x % y == 0 for y in range(2, int(floor(sqrt(x)))+1))]
+            if all(x % y != 0 for y in range(2, int(floor(sqrt(x)))+1))]
 
 
 def prime_funct(n):

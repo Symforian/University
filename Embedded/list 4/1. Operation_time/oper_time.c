@@ -65,16 +65,19 @@ int main()
     t0 =  TCNT1;
     // 8 + 8
     result8 = a8+b8;
+    //--
     t1 = TCNT1;
     printf("int8 +: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 8 * 8
     result8 = a8*b8;
+    //--
     t1 = TCNT1;
     printf("int8 *: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 8 / 8
     result8 = a8/b8;
+    //--
     t1 = TCNT1;
     printf("int8 /:%"PRId16"\r\n",t1 - t0);
     _delay_ms(1000);
@@ -86,58 +89,67 @@ int main()
     t0 =  TCNT1;
     // 16 + 16
     r16 = a16+b16; 
+    //--
     t1 =  TCNT1;
     printf("int16 +: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 16 * 16
     r16 = a16*b16;
+    //--    
     t1 =  TCNT1;
     printf("int16 *: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 16/16
     r16 = a16/b16;
+    //--    
     t1 =  TCNT1;
     printf("int16 /: %"PRId16"\r\n",t1 - t0);
     _delay_ms(1000);
 
     // int 32
-    volatile int32_t a32 = 321;
+    volatile int32_t a32 = 33321;
     volatile int32_t b32 = 121;
     volatile int32_t r32;
     t0 =  TCNT1;
     // 32+32
     r32 = a32+b32;
+    //--
     t1 =  TCNT1;
     printf("int32 +: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 32 * 32
     r32 = a32 * b32;
+    //--
     t1 =  TCNT1;
     printf("int32 *: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 32/32
     r32 = a32/b32;
+    //--
     t1 =  TCNT1;
     printf("int32 /: %"PRId16"\r\n",t1 - t0);
     _delay_ms(1000);
 
     // int 64
-    volatile int64_t a64 = 5321;
+    volatile int64_t a64 = 765321;
     volatile int64_t b64 = 1231;
     volatile int64_t r64;
     t0 =  TCNT1;
     // 64+ 64
     r64 = a64+b64;
+    //--
     t1 =  TCNT1;
     printf("int64 +: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 64 * 64
     r64 = a64 * b64;
+    //--
     t1 =  TCNT1;
     printf("int64 *: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // 64/ 64
     r64 = a64 / b64;
+    //--
     t1 =  TCNT1;
     printf("int64 /: %"PRId16"\r\n",t1 - t0);
     _delay_ms(1000);
@@ -149,16 +161,19 @@ int main()
     t0 =  TCNT1;
     // f + f
     f = af+bf;
+    //--
     t1 =  TCNT1;
     printf("float +: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // f*f
     f = af * bf;
+    //--
     t1 =  TCNT1;
     printf("float *: %"PRId16"\r\n",t1 - t0);
     t0 =  TCNT1;
     // f/f
     f = af/bf;
+    //--
     t1 =  TCNT1;
     printf("float /: %"PRId16"\r\n",t1 - t0);
     _delay_ms(1000);

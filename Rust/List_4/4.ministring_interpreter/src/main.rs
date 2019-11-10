@@ -1,13 +1,13 @@
 fn my_first_interpreter(code: &str) -> String {
     if code == "" {return "".to_string();}
-    let mut acc = 0;
+    let mut acc = 0u8;
     let mut ret = "".to_string();
     let outputs:String= code.to_string().chars().filter(|&x| x == '+' || x == '.').collect::<String>();
     let outputs:Vec<&str>  = outputs.split('.').collect();
-    let outputs:Vec<u16> = outputs[0..outputs.len()-1].iter().map(|&x| x.len() as u16).collect();
+    let outputs:Vec<u8> = outputs[0..outputs.len()-1].iter().map(|&x| x.len() as u8).collect();
     for c in outputs{
-        acc += c % 256;
-        ret.push(acc as u8 as char);
+        acc = acc.wrapping_add(c);
+        ret.push(acc as char);
     }
     ret
 }

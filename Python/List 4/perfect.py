@@ -16,6 +16,8 @@ def perf_imp(n):
     acc = 1
     i = 1
     while True:
+        # 2^(i-1) * 2^i -1 == i * acc
+        # 2^i -1 -- if prime => prime Mersenne number
         i *= 2
         acc += i
         if isPrime(acc):
@@ -85,4 +87,4 @@ print(timeit(snip2, setup, number=100))
 print(perf_imp(1000))
 print(perf_comprehension(1000))
 print(perf_funct(1000))
-print(perf_funct(20))
+# print(perf_funct(20))
