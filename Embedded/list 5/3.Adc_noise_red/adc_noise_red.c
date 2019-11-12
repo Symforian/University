@@ -102,7 +102,7 @@ int main() {
       ADCSRA |= _BV(ADSC); // wykonaj konwersję
       while (!(ADCSRA & _BV(ADIF))); // czekaj na wynik
       ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
-      v = (102400 * 11) / ADC;
+      v = (1024.0 * 1.1) / ADC;
       no_red[counter] = v;
 
     } else if (counter >= (SIZE / 2)) {
