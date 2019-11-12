@@ -1,6 +1,6 @@
 
-PRG            = foto_int
-OBJ            = foto_int.o
+PRG            = adc_noise_red
+OBJ            = adc_noise_red.o
 PROGRAMMER     = arduino
 PORT           = /dev/ttyUSB0
 MCU_TARGET     = atmega328p 

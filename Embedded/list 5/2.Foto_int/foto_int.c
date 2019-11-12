@@ -59,13 +59,15 @@ void adc_init()
   ADCSRA |= _BV(ADEN); // włącz ADC
 
 }
-
-volatile uint16_t v = 0;
+volatile float v = 0;
 ISR(ADC_vect) {
   ADCSRA |= _BV(ADIF);
-  v = ADC;      // weź zmierzoną wartość (0..1023)
-
+            // weź zmierzoną wartość (0..1023)
+  v = (ADC*5.0)/1023.0;
+  v = 10000.0*((5.0/v) -1.0);
 }
+// Vout = (Vs x R2)/(R1 + R2)
+// R1 = R2(Vs/Vout -1)
 ISR(INT0_vect) {
   //ADCSRA |= _BV(ADSC); // wykonaj konwersję
 
@@ -83,7 +85,7 @@ int main()//
   adc_init();
   sei();
     while(1){
-    printf("%"PRIu16"\r\n", v);
+    printf("%f\r\n", v);
     _delay_ms(100);
     }
 }
