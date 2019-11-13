@@ -50,33 +50,10 @@ volatile uint16_t counter = 0;
 volatile float v = 0;
 volatile float red[SIZE / 2];
 ISR(ADC_vect) {
-
-  if (counter == SIZE) {
-    float average = 0;
-    for (int i = 0; i < SIZE / 2; i++) {
-      average += red[i];
-    }
-    average /= (SIZE / 2);
-    float variance = 0;
-    for (int i = 0; i < SIZE / 2; i++) {
-      float temp = red[i] - average;
-      variance += (temp * temp);
-    }
-    variance /= (SIZE / 2);
-    printf("Wariancja z noise reduction: \t%f\r\n", variance);
-    _delay_ms(100);
-    /*  if(variance < 0){
-      printf("TSOOOOO:\n%" PRId32 "",average);
-      for (int i = 0; i < SIZE / 2; i++) {
-        printf("T[%d] = %" PRId32 "\r\n",i, red[i]);
-          _delay_ms(1000);
-      }*/
-    //}
-  } else {
     ADCSRA |= _BV(ADIF);
-    v = (1024.0 * 1.1) / ADC;
+    v = (1024.0 * 1.1) / (float)ADC;
     red[counter % (SIZE / 2)] = v;
-  }
+    counter++;
 }
 
 int main() {
@@ -89,46 +66,68 @@ int main() {
   adc_init();
   SMCR |= _BV(SM0); // Set sleep mode ADC noise reduction
   float no_red[SIZE / 2];
+  for (int i = 0; i < 1; i += 1)  // first rubbish output
+  {
   ADCSRA |= _BV(ADSC); // wykonaj konwersję
   while (!(ADCSRA & _BV(ADIF)))
     ;                  // czekaj na wynik
   ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
-  // first rubbish output
+  v = ADC;
+      
+  }
+
   while (1) {
 
     // mierz napięcie
     if (counter < (SIZE / 2)) {
-      cli();
       ADCSRA |= _BV(ADSC); // wykonaj konwersję
       while (!(ADCSRA & _BV(ADIF))); // czekaj na wynik
       ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
-      v = (1024.0 * 1.1) / ADC;
+      v = (1024.0 * 1.1) / (float)ADC;
       no_red[counter] = v;
+      counter++;
 
-    } else if (counter >= (SIZE / 2)) {
+    } else if (counter == (SIZE/2)){
 
       sei();
       SMCR |= _BV(SE); // Sleep mode
-      sleep_mode();
-      SMCR &= ~_BV(SE);
+    for (uint8_t i = 0; i < SIZE/2; i += 1)
+    {
+       sleep_mode();
     }
-    counter++;
-    counter %= SIZE + 1;
+      SMCR &= ~_BV(SE);
+      cli();
+        float average = 0.0;
+        for (int i = 0; i < SIZE / 2; i++) {
+          average += red[i];
+        }
+        average /= ((float)SIZE / 2.0);
+        float variance = 0.0;
+        for (int i = 0; i < SIZE / 2; i++) {
+          float temp = red[i] - average;
+          variance += (temp * temp);
+        }
+        variance /= ((float)SIZE / 2.0);
+        printf("Wariancja z noise reduction: \t%f\r\n", variance);
+        _delay_ms(100);
+    }
+
     if (counter == SIZE / 2) {
-      float average = 0;
+      float average = 0.0;
       for (int i = 0; i < SIZE / 2; i++) {
         average += no_red[i];
       }
-      average /= (SIZE / 2);
-      float variance = 0;
+      average /= ((float)SIZE / 2.0);
+      float variance = 0.0;
       for (int i = 0; i < SIZE / 2; i++) {
-        int temp = no_red[i] - average;
-        variance += (temp * temp);
+          float temp = no_red[i] - average;
+          variance += (temp * temp);
       }
-      variance /= (SIZE / 2);
+      variance /= ((float)SIZE / 2.0);
       printf("Wariancja bez noise reduction: \t%f\r\n", variance);
       _delay_ms(100);
     }
+
     _delay_ms(25);
   }
 }
