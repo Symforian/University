@@ -57,12 +57,12 @@ void timer2_init() {
   // ustaw tryb licznika
   // WGM2  = 0 --  normal
   // CS2   = 100  -- prescaler 256
-  // ICR1  = 624
-  // 16e6/(2*N*TOP)
+  // TOP  = 255
+  // 16e6/(2*N*(1+OCRN))
   // TOP = 0xFFFF
   // częstotliwość 16e6/(2*0xffff*64) = 1,9Hz
   // preskaler 64 
-  TCCR2B = _BV(CS10);// | _BV(CS11) | _BV(CS12);
+  TCCR2B = _BV(CS20) | _BV(CS21) | _BV(CS22);
   TIMSK2 |= _BV(TOIE2); //Enable overflow flag
 }
 FILE uart_file;
@@ -74,7 +74,6 @@ ISR(TIMER2_OVF_vect) {
     counter=0;
 }
 ISR(TIMER1_CAPT_vect) {  
-    uart_wait();
     counter++;
 }
 
