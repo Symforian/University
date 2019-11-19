@@ -1,10 +1,10 @@
 fn dbl_linear(n: u32) -> u32{
     let mut u = vec![1u32];
-    let mut lastx:u32 = 0;
-    let mut lasty:u32 = 0;
+    let mut lastx = 0usize;
+    let mut lasty = 0usize;
     while u.len() <=n as usize{
-        let x:u32 = 2*u[lastx as usize]+1;
-        let y:u32 = 3*u[lasty as usize]+1; 
+        let x:u32 = 2*u[lastx]+1;
+        let y:u32 = 3*u[lasty]+1; 
         if  x <= y{
             u.push(x);
             lastx+=1;

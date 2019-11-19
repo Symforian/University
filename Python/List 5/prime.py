@@ -1,5 +1,6 @@
 from timeit import timeit
 from math import sqrt, floor
+from functools import partial
 
 
 def isPrime(n):
@@ -141,21 +142,17 @@ def prime_iter(n):
 
 
 def _print(p):
-    times = [10, 100, 1000, 10000]
+    arg = [10, 100, 1000, 10000]
     setups = [set1, set2, set3, set4]
-    snips = ["prime_imp(10)", "prime_comprehension(10)",
-             "prime_funct(10)", "prime_iter(10)",
-             "prime_imp(100)", "prime_comprehension(100)",
-             "prime_funct(100)", "prime_iter(100)",
-             "prime_imp(1000)", "prime_comprehension(1000)",
-             "prime_funct(1000)", "prime_iter(1000)"]
     print("\t| imperatywna\t| funkcyjna\t| skladana\t| iterator")
-    for i in range(0, 12, 4):
-        t1 = timeit(snips[i], setups[i % 4], number=times[i % 4])
-        t2 = timeit(snips[i+1], setups[(i+1) % 4], number=times[i % 4])
-        t3 = timeit(snips[i+2], setups[(i+2) % 4], number=times[i % 4])
-        t4 = timeit(snips[i+3], setups[(i+3) % 4], number=times[i % 4])
-        _str = times[i % 4].__str__() + "\t| " + round(t1, p).__str__()
+    for i in range(0, 16, 4):
+        t1 = timeit(partial(prime_imp, arg[i/4]), setups[i % 4], number=1)
+        temp = setups[(i+1) % 4]
+        t2 = timeit(partial(prime_funct, arg[i/4]), temp, number=1)
+        temp = setups[(i+2) % 4]
+        t3 = timeit(partial(prime_comprehension, arg[i/4]), temp, number=1)
+        t4 = timeit(partial(prime_iter, arg[i/4]), setups[(i+3) % 4], number=1)
+        _str = arg[i / 4].__str__() + "\t| " + round(t1, p).__str__()
         _str += "\t| " + round(t2, p).__str__() + "\t| "
         print(_str + round(t3, p).__str__() + "\t|" + round(t4, p).__str__())
 
@@ -164,4 +161,4 @@ print(prime_imp(20))
 print(prime_comprehension(20))
 print(prime_funct(20))
 print(prime_iter(20))
-_print(6)
+_print(8)

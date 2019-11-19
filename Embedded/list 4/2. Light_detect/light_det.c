@@ -3,7 +3,7 @@
 #include <util/delay.h>
 #define LED_DDR DDRB
 #define LED_PORT PORTB
-#define LED PB1
+#define LED PB5
 #define BAUD 9600                          // baudrate
 #define UBRR_VALUE ((F_CPU)/16/(BAUD)-1)   // zgodnie ze wzorem
 // inicjalizacja UART
@@ -75,6 +75,7 @@ LED_PORT &= ~_BV(LED);
     while (!(ADCSRA & _BV(ADIF))); // czekaj na wynik
     ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
     uint16_t v = ADC; // weź zmierzoną wartość (0..1023)
+    printf("%"PRIu16"\r\n",v);
     ICR1 = lightlv[v>>6];
     }
 }

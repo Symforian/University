@@ -1,0 +1,13 @@
+http://www.ii.uni.wroc.pl/~marcinm/dyd/python/ 0
+http://www.ii.uni.wroc.pl/~marcinm/dyd/python/#wykład 1
+http://www.ii.uni.wroc.pl/~marcinm/dyd/python/#inne 1
+http://diveintopython.org/ 1
+Timeout: http://diveintopython.org/
+http://en.wikipedia.org/wiki/Python_%28programming_language%29 1
+http://www.ii.uni.wroc.pl/~marcinm/dyd/python/#spis 1
+http://www.python.org/ 1
+http://pl.python.org 1
+http://www.python.org 1
+http://pl.wikipedia.org/wiki/Python 1
+http://www.tkdocs.com/tutorial/ 1
+{'http://www.ii.uni.wroc.pl/~marcinm/dyd/python/': 5, 'http://www.ii.uni.wroc.pl/~marcinm/dyd/python/#wykład': 5, 'http://www.ii.uni.wroc.pl/~marcinm/dyd/python/#inne': 5, 'http://en.wikipedia.org/wiki/Python_%28programming_language%29': 456, 'http://www.ii.uni.wroc.pl/~marcinm/dyd/python/#spis': 5, 'http://www.python.org/': 61, 'http://pl.python.org': 14, 'http://www.python.org': 61, 'http://pl.wikipedia.org/wiki/Python': 68, 'http://www.tkdocs.com/tutorial/': 3}

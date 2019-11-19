@@ -7,6 +7,7 @@
 #define BAUD 9600                            // baudrate
 #define UBRR_VALUE ((F_CPU) / 16 / (BAUD)-1) // zgodnie ze wzorem
 #define SIZE 60
+
 // inicjalizacja UART
 void uart_init() {
   // ustaw baudrate
@@ -36,7 +37,7 @@ int uart_receive(FILE *stream) {
 
 // inicjalizacja ADC
 void adc_init() {
-  ADMUX = _BV(REFS0); // referencja AVcc, wejście ADC0
+  ADMUX = _BV(REFS0)| _BV(MUX3) | _BV(MUX2) | _BV(MUX1); // referencja AVcc, wejście ADC0
   DIDR0 = _BV(ADC0D); // wyłącz wejście cyfrowe na ADC0
   // częstotliwość zegara ADC 125 kHz (16 MHz / 128)
 
@@ -66,13 +67,13 @@ int main() {
   adc_init();
   SMCR |= _BV(SM0); // Set sleep mode ADC noise reduction
   float no_red[SIZE / 2];
-  for (int i = 0; i < 1; i += 1)  // first rubbish output
+  for (int i = 0; i < 10; i += 1)  // first rubbish output
   {
   ADCSRA |= _BV(ADSC); // wykonaj konwersję
   while (!(ADCSRA & _BV(ADIF)))
     ;                  // czekaj na wynik
   ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
-  v = ADC;
+  v = (float)ADC;
       
   }
 
@@ -83,20 +84,23 @@ int main() {
       ADCSRA |= _BV(ADSC); // wykonaj konwersję
       while (!(ADCSRA & _BV(ADIF))); // czekaj na wynik
       ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
-      v = (1024.0 * 1.1) / (float)ADC;
+        v = (float)ADC;
+      v = (1024.0 * 1.1) / v;
       no_red[counter] = v;
       counter++;
 
     } else if (counter == (SIZE/2)){
 
-      sei();
+
       SMCR |= _BV(SE); // Sleep mode
+      sei();
     for (uint8_t i = 0; i < SIZE/2; i += 1)
     {
        sleep_mode();
     }
-      SMCR &= ~_BV(SE);
       cli();
+      SMCR &= ~_BV(SE);
+
         float average = 0.0;
         for (int i = 0; i < SIZE / 2; i++) {
           average += red[i];
@@ -117,13 +121,13 @@ int main() {
       for (int i = 0; i < SIZE / 2; i++) {
         average += no_red[i];
       }
-      average /= ((float)SIZE / 2.0);
+      average = average/((float)SIZE / 2.0);
       float variance = 0.0;
       for (int i = 0; i < SIZE / 2; i++) {
           float temp = no_red[i] - average;
-          variance += (temp * temp);
+          variance = variance + (temp * temp);
       }
-      variance /= ((float)SIZE / 2.0);
+      variance = variance/((float)SIZE / 2.0);
       printf("Wariancja bez noise reduction: \t%f\r\n", variance);
       _delay_ms(100);
     }

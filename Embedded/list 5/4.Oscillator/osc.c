@@ -42,36 +42,31 @@ int uart_receive(FILE *stream) {
 
 // inicjalizacja licznika 1
 void timer1_init() {
-  // ustaw tryb licznika
-  // WGM2  = 0 --  normal
-  // CS2   = 100  -- prescaler 256
-  // ICR1  = 624
-  // 16e6/(2*N*TOP)
-  // TOP = 0xFFFF
-  // częstotliwość 16e6/(2*0xffff*64) = 1,9Hz
-  // preskaler 64 
-  TCCR1B = _BV(CS10);// | _BV(CS11) | _BV(CS12);
+  TCCR1B = _BV(CS10);
   TIMSK1 |= _BV(ICIE1); // Enable input capture flag
 }
 void timer2_init() {
   // ustaw tryb licznika
   // WGM2  = 0 --  normal
-  // CS2   = 100  -- prescaler 256
-  // TOP  = 255
-  // 16e6/(2*N*(1+OCRN))
-  // TOP = 0xFFFF
-  // częstotliwość 16e6/(2*0xffff*64) = 1,9Hz
-  // preskaler 64 
+  // CS2   = 111  -- prescaler 1024
+  // TOP = 0xFF
+  // częstotliwość 16e6/(256*1024) = 61Hz
   TCCR2B = _BV(CS20) | _BV(CS21) | _BV(CS22);
   TIMSK2 |= _BV(TOIE2); //Enable overflow flag
 }
 FILE uart_file;
 // procedura obsługi przerwania przepełnienia licznika
 volatile uint32_t counter = 0;
+volatile uint32_t sixty_first = 0;
 ISR(TIMER2_OVF_vect) {
+    sixty_first++;
+    if (sixty_first==61){
     printf("%"PRIu32"Hz\r\n",counter);
     uart_wait();
     counter=0;
+    sixty_first=0;
+    }
+    
 }
 ISR(TIMER1_CAPT_vect) {  
     counter++;

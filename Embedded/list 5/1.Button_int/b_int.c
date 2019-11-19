@@ -37,12 +37,12 @@ void timer2_init() {
 }
 volatile uint8_t reader = 0;
 volatile uint8_t counter = 0;
-volatile uint8_t buffor[150] = {0};
+volatile uint8_t buffor[62] = {0};
 volatile uint8_t time = 61;
 // procedura obsługi przerwania przepełnienia licznika
 ISR(TIMER2_OVF_vect) {
   counter++;
-  counter %= 150;
+  counter %= 62;
   buffor[counter] = bit_is_clear(BTN_PIN, BTN);
   if (time > 0 && counter >= time) {
     time = 0;
@@ -53,7 +53,7 @@ ISR(TIMER2_OVF_vect) {
     else
       LED_PORT &= ~_BV(LED);
     reader++;
-    reader %= 150;
+    reader %= 62;
   }
 }
 
