@@ -62,6 +62,28 @@ class Indexer():
         fp.close()
         self.parser.feed(mystr)
 
+    def add_words(self, url):
+        words = self.parser.get_page_words()
+        for word in words:
+            val = self.ranking.get(word)
+            if val is None:
+                self.ranking.update({word: {url: 1}})
+            else:
+                val = self.ranking.get(word).get(url)
+                if val is None:
+                    self.ranking[word].update({url: 1})
+                else:
+                    self.ranking[word].update({url: val+1})
+
+    def go_deeper(self, depth):
+        subpages = self.parser.get_subpages()
+        self.to_visit[depth].append(subpages)
+        for sites in self.to_visit[depth]:
+            for site in sites:
+                new_ranking = self.index_site(site, depth+1)
+                if new_ranking is not None:
+                    self.ranking = new_ranking.ranking
+
     def index_site(self, url, depth):
         if len(self.to_visit) <= depth:
             self.to_visit.append([])
@@ -89,25 +111,9 @@ class Indexer():
                 finally:
                     self.visited.add(url)
                 if parsable:
-                    words = self.parser.get_page_words()
-                    for word in words:
-                        val = self.ranking.get(word)
-                        if val is None:
-                            self.ranking.update({word: {url: 1}})
-                        else:
-                            val = self.ranking.get(word).get(url)
-                            if val is None:
-                                self.ranking[word].update({url: 1})
-                            else:
-                                self.ranking[word].update({url: val+1})
+                    self.add_words(url)
                     if depth < self.depth:
-                        subpages = self.parser.get_subpages()
-                        self.to_visit[depth].append(subpages)
-                        for sites in self.to_visit[depth]:
-                            for site in sites:
-                                new_ranking = self.index_site(site, depth+1)
-                                if new_ranking is not None:
-                                    self.ranking = new_ranking.ranking
+                        self.go_deeper(depth)
 
     def get_ranking(self):
         for word, urls in self.ranking.items():
@@ -121,4 +127,6 @@ i = Indexer("http://www.ii.uni.wroc.pl/~marcinm/dyd/python/", 1)
 # print(i.parser.get_page_words())
 # print(i.parser.get_subpages())
 # print(i.ranking.get('Python'))
-print(i.get_ranking().get('rust'))
+ranking = i.get_ranking()
+print(ranking.get('rust'))
+print(ranking.get('python'))
