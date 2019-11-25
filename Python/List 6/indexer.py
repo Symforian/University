@@ -130,3 +130,4 @@ i = Indexer("http://www.ii.uni.wroc.pl/~marcinm/dyd/python/", 1)
 ranking = i.get_ranking()
 print(ranking.get('rust'))
 print(ranking.get('python'))
+
