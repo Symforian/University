@@ -100,15 +100,21 @@ int main() {
     } else if (!strcmp("write", command)) {
       printf("write\r\n");
         char * pEnd;
-        while(1){
+        uint8_t quit =0;
+        while(quit==0){
           char first;
           scanf("%1s",&first);
           if(first == ':'){
+              uint8_t buffor_data[40];
               char buffor[2];
               printf(":");
               //Length scan
               scanf("%2s",&buffor);
               uint8_t length = strtol(buffor,&pEnd,16);
+              if(length>40) {
+                printf("Buffer overloaded, try in smaller chunks\r\n");
+                break;
+              }
               printf("%.2x",length);
               uint8_t checksum = length;
               char addr_buff[4];
@@ -117,11 +123,29 @@ int main() {
               addr &= 0x1ff;
               printf("%.4x",addr);
               checksum += addr;
-              uint8_t i = 0;
+
               scanf("%2s",&buffor);
               uint8_t r_type = strtol(buffor,&pEnd,16);
               printf("%.2x",r_type);
+              uint8_t i = 0;
+              for (i = 0;  i< length;  i++)
+              {
+                      scanf("%c%c",&buffor[0],&buffor[1]);
+                      buffor_data[i] = (uint8_t)strtol(buffor,&pEnd,16);
+                      printf("%.2x",buffor_data[i]);
+                      checksum += buffor_data[i];
+                  
+              }
+              i = 0;
+              scanf("%2s",&buffor);
+              uint8_t given_checksum = strtol(buffor,&pEnd,16);
+              printf("%.2x\n\r",given_checksum);
               if(r_type == 0){
+                  if(given_checksum != checksum){
+                    printf("Checksum is wrong, data corruption\r\n");
+                    quit=1;
+                    break;
+                  }
                   while (length > i) {
                     addr &= 0x1ff;
 
@@ -136,12 +160,8 @@ int main() {
                     uint8_t n = 0;
                     uint8_t data = 0;
                     while (n < rest_of_page && length > i) {
-                      scanf("%2s",&buffor);
-                      data = strtol(buffor,&pEnd,16);
-                      checksum += data;
-                      i2cSend(data);
+                      i2cSend(buffor_data[i]);
                       i2cCheck(0x28, "I2C EEPROM send data")
-                      printf("%.2x", data);
                       n++;
                       i++;
                     }
@@ -150,21 +170,24 @@ int main() {
                     i2cCheck(0xf8, "I2C stop") 
                     _delay_ms(100);
                     }
-                    printf("%.2x\r\n",checksum);
                 }
                 else if(r_type == 1){
-                printf("ff\r\nEnd of write\r\n");
-                break;
+                    printf("ff\r\nEnd of write\r\n");
+                    quit=1;
+                    break;
                 }
                 else{
-                printf("Aborting, unknown record type \"%.2x\"\r\n",r_type);
-                break;
+                    printf("Aborting, unknown record type \"%.2x\"\r\n",r_type);
+                    quit=1;
+                    break;
                 }
             }
             else{
                  printf("Unrecognized data format: \"%s\"\n\r", first);
+                 quit=1;
                  break;
             }
+
         }
       
     } else {
