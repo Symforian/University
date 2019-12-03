@@ -39,18 +39,12 @@ int uart_transmit(char data, FILE *stream)
     ts++;
     }
     else{
-      //wylacz przerwanie tx
-      UCSR0B &= ~_BV(UDRIE0);
       // czekaj aż transmiter gotowy
       while(!(UCSR0A & _BV(UDRE0)));
       tbuff[ti_w] = data;
       ti_w++;
       if(ti_w==SIZE) {ti_w=0;}
       ts++;
-      // wyczysc flage 
-      UCSR0A |= _BV(UDRE0);
-      //wlacz przerwanie tx
-      UCSR0B |= _BV(UDRIE0);
       return 0;
   }
     return 0;
@@ -59,14 +53,9 @@ int uart_transmit(char data, FILE *stream)
 int uart_receive(FILE *stream)
 {
     if (rs == 0){
-      //wylacz przerwanie rx
-      UCSR0B &= ~_BV(RXCIE0);
       // czekaj aż znak dostępny 
       while(!(UCSR0A & _BV(RXC0)));
-      // wyczysc flage 
-      UCSR0A |= _BV(RXC0);
-      //wlacz przerwanie tx
-      UCSR0B |= _BV(RXCIE0);
+
       return UDR0;
   } else {
     int t = ri_r;
