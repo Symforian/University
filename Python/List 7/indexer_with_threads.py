@@ -55,20 +55,22 @@ class Indexer():
         self.debug = debug
         self.ranking = {}
         self.depth = depth
+        self.lock = Lock()
         self.index_site(self.url, 0)
 
     def parse_site(url):
         parser = MyHTMLParser(url)
+        print("Poczatek: "+url)
         fp = urllib.request.urlopen(url, timeout=15)
         mybytes = fp.read()
         mystr = mybytes.decode("utf-8")
         fp.close()
+        print("Koniec: "+url)
         parser.feed(mystr)
         return (parser.get_subpages(), parser.get_page_words())
 
     def add_word(self, word, url, amount=1):
-        lock = Lock()
-        lock.acquire()
+        self.lock.acquire()
         val = self.ranking.get(word)
         if val is None:
             self.ranking.update({word: {url: amount}})
@@ -78,7 +80,7 @@ class Indexer():
                 self.ranking[word].update({url: amount})
             else:
                 self.ranking[word].update({url: val+amount})
-        lock.release()
+        self.lock.release()
 
     def add_words(self, words, url):
         for word in words:
@@ -98,7 +100,6 @@ class Indexer():
         que_results = queue.Queue()
         que_thread = queue.Queue()
         for site in self.to_visit[depth]:
-            print(site)
             args = (que_results, site, depth)
             thread = Thread(target=self.thread_result_in_que, args=args)
             thread.start()
@@ -108,10 +109,9 @@ class Indexer():
         return que_results
 
     def go_deeper(self, depth):
-        lock = Lock()
-        lock.acquire()
+        self.lock.acquire()
         temp = deepcopy(self.ranking.copy())
-        lock.release()
+        self.lock.release()
         que_results = self.get_thread_results(depth)
         while(not que_results.empty()):
             result = que_results.get()
@@ -121,15 +121,24 @@ class Indexer():
         if depth < self.depth:
             self.go_deeper(depth+1)
 
+    def use_parsed_site(self, url, depth, words, subpages, thr):
+        self.add_words(words, url)
+        if depth < self.depth:
+            self.lock.acquire()
+            temp = self.to_visit[depth+1].union(subpages)
+            self.to_visit[depth+1] = temp
+            self.lock.release()
+            if not thr and depth < self.depth:
+                self.go_deeper(depth+1)
+
     def index_site(self, url, depth, thr=0):
         if thr:
             self.ranking = {}
-        lock = Lock()
-        lock.acquire()
+        self.lock.acquire()
         if len(self.to_visit) <= depth+1:
             self.to_visit.append(set())
         if url not in self.visited:
-            lock.release()
+            self.lock.release()
             parsable = True
             if depth <= self.depth:
                 try:
@@ -140,16 +149,9 @@ class Indexer():
                         print("Exception: "+str(e)+"\n\r"+url)
                 finally:
                     if parsable:
-                        self.add_words(words, url)
-                        if depth < self.depth:
-                            lock.acquire()
-                            temp = self.to_visit[depth+1].union(subpages)
-                            self.to_visit[depth+1] = temp
-                            lock.release()
-                            if not thr and depth < self.depth:
-                                self.go_deeper(depth+1)
+                        self.use_parsed_site(url, depth, words, subpages, thr)
         else:
-            lock.release()
+            self.lock.release()
         if thr:
             return self.ranking
 
@@ -161,9 +163,8 @@ class Indexer():
         return self.ranking
 
 
-i = Indexer("http://www.ii.uni.wroc.pl/~marcinm/dyd/python/", 0)
+i = Indexer("http://www.ii.uni.wroc.pl/~marcinm/dyd/python/", 1)
 # print(i.ranking.get('Python'))
 ranking = i.get_ranking()
 print(ranking.get('rust'))
 print(ranking.get('python'))
-

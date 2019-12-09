@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include <inttypes.h>
-
+#include <util/delay.h> 
 #define BAUD 9600                          // baudrate
 #define UBRR_VALUE ((F_CPU)/16/(BAUD)-1)   // zgodnie ze wzorem
 #define MISO PD7
@@ -53,17 +53,11 @@ void spi_init()
     // włącz SPI w trybie slave z zegarem 250 kHz
     SPCR = _BV(SPE) | _BV(SPR1);
 }
-uint8_t read_spi()
-{
-    while (!(SPSR & _BV(SPIF)));
-    // wyczyść flagę przerwania
-    SPSR |= _BV(SPIF);
-    // zwróć otrzymane dane
-    return SPDR;
-}
+
 // transmit byte serially, MSB first
-void send_spi(char data)
+uint8_t send_spi(char data)
 {
+   uint8_t value = 0;
    // slave select (active low)
    PORTD &= ~_BV(PD5);
    // send bits
@@ -74,6 +68,16 @@ void send_spi(char data)
            PORTD |= _BV(PD6);
        else
            PORTD &= ~_BV(PD6);
+
+        //recieve 
+        if (!bit_is_clear(PIND, PD7)){
+            value <<=1;
+            value++;
+        }
+        else
+        {
+            value<<=1;
+        }
        // pulse clock to indicate that bit value should be read
        PORTD |= _BV(PD4);
        PORTD &= ~_BV(PD4);
@@ -81,6 +85,7 @@ void send_spi(char data)
    }
    // slave deselect
    PORTD |= _BV(PD5);
+   return value;
 }
 int main()
 {
@@ -96,8 +101,7 @@ int main()
   uint8_t v = 0;
   uint8_t w = 0;
   while(1) {
-    send_spi(v);
-    w = read_spi();
+    w = send_spi(v);
     printf("Wysłano: %"PRId8" Odczytano: %"PRId8"\r\n", v,w);
     v++;
 
