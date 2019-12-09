@@ -141,7 +141,8 @@ static void vReadUART(void* pvParameters)
  * \param[in]   pvParameters
  ******************************************************************************/
 static void vLightLED(void* pvParameters)
-{
+{   
+    DDRB |= _BV(PB5);
     uint16_t pvBuffer = 0;
     for ( ;; )
     {
