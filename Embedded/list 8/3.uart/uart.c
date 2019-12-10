@@ -1,5 +1,4 @@
 #include "FreeRTOS.h"
-#include "task.h"
 #include <avr/io.h>
 #include <stdio.h>
 #include "uart.h"
@@ -15,7 +14,6 @@
 int uart_transmit(char c, FILE *stream);
 int uart_receive(FILE *stream);
 FILE uart_file = FDEV_SETUP_STREAM(uart_transmit, uart_receive, _FDEV_SETUP_RW);
-
 void uart_init() {
   UBRR0H = UBRRH_VALUE;
   UBRR0L = UBRRL_VALUE;
@@ -32,7 +30,7 @@ void uart_init() {
 
 int uart_transmit(char data, FILE *stream) {
     if (uxQueueSpacesAvailable(QueueTransmit)==0){
-        while(!(UCSR0A & _BV(UDRE0))) taskYIELD();
+        while(!(UCSR0A & _BV(UDRE0))) vTaskDelay(2/portTICK_PERIOD_MS);
     }
     xQueueSend(QueueTransmit,
                &data,
@@ -48,7 +46,8 @@ int uart_transmit(char data, FILE *stream) {
 
 int uart_receive(FILE *stream) {
     if (uxQueueSpacesAvailable(QueueReceive)==10){
-      while(!(UCSR0A & _BV(RXC0))) taskYIELD();
+
+      while(!(UCSR0A & _BV(RXC0))) vTaskDelay(2/portTICK_PERIOD_MS);
 
       return UDR0;
   } else {
@@ -72,6 +71,7 @@ ISR(USART_RX_vect){
                     &UDR0,
                     HigherPriorityTaskWoken);//{};
     }
+    //xTaskResumeFromISR(*uart_task_handle_ptr);
 }
 //Data register empty
 ISR(USART_UDRE_vect){

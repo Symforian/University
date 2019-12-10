@@ -42,9 +42,11 @@ int main(void)
 {
     QueueTransmit = xQueueCreate( 10, sizeof( uint8_t ) );
     QueueReceive = xQueueCreate( 10, sizeof( uint8_t ) );
+
     // Create task.
     xTaskHandle blink_handle;
     xTaskHandle uart_handle;
+    uart_task_handle_ptr = &uart_handle;
     xTaskCreate
         (
          vBlinkLed,
@@ -122,6 +124,7 @@ static void vUart(void* pvParameters)
     {
         printf("Hello World\r\n");
         //scanf("%c",&input);//
+        //vTaskSuspend(NULL);
         input = getchar();
         printf("You wrote '%c'\r\n", input); 
     }
