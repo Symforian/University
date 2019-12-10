@@ -123,6 +123,6 @@ static void vUart(void* pvParameters)
         printf("Hello World\r\n");
         //scanf("%c",&input);//
         input = getchar();
-        printf("You wrote %c\r\n", input); 
+        printf("You wrote '%c'\r\n", input); 
     }
 }

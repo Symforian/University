@@ -38,16 +38,16 @@ int uart_transmit(char data, FILE *stream) {
                &data,
                (TickType_t) 10);
   
-    /*UCSR0B |= _BV(UDRIE0);
+    UCSR0B |= _BV(UDRIE0);
     if(uxQueueSpacesAvailable(QueueTransmit)==10){
         UCSR0B &= ~_BV(UDRIE0);
-    }*/
+    }
 
     return 0;
 }
 
 int uart_receive(FILE *stream) {
-    if (uxQueueSpacesAvailable(QueueReceive)==0){
+    if (uxQueueSpacesAvailable(QueueReceive)==10){
       while(!(UCSR0A & _BV(RXC0))) taskYIELD();
 
       return UDR0;
@@ -66,7 +66,7 @@ int uart_receive(FILE *stream) {
 //Rx complete
 ISR(USART_RX_vect){
     BaseType_t HigherPriorityTaskWoken = pdFALSE;
-    if(xQueueIsQueueEmptyFromISR(QueueReceive)!=pdFALSE){ 
+    if(xQueueIsQueueEmptyFromISR(QueueReceive)==pdFALSE){ 
     xQueueSendFromISR(
                     QueueReceive,
                     &UDR0,
@@ -76,7 +76,7 @@ ISR(USART_RX_vect){
 //Data register empty
 ISR(USART_UDRE_vect){
     BaseType_t HigherPriorityTaskWoken = pdFALSE;
-    if(xQueueIsQueueFullFromISR(QueueTransmit)!=pdFALSE){ 
+    if(xQueueIsQueueEmptyFromISR(QueueTransmit)==pdFALSE){ 
     uint8_t save; 
     xQueueReceiveFromISR(
                     QueueTransmit,
