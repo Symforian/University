@@ -120,8 +120,9 @@ static void vUart(void* pvParameters)
 
     for ( ;; )
     {
-        puts("Hello World\r\n");
-        //input = getchar();
-        //printf("You wrote %c\r\n", input); 
+        printf("Hello World\r\n");
+        //scanf("%c",&input);//
+        input = getchar();
+        printf("You wrote %c\r\n", input); 
     }
 }
