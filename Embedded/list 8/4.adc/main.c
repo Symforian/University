@@ -23,28 +23,42 @@ void adc_init()
   ADCSRA |= _BV(ADEN); // włącz ADC
 }
 SemaphoreHandle_t mutex;
+SemaphoreHandle_t first_place;
+SemaphoreHandle_t second_place;
 xTaskHandle foto_handle;
 xTaskHandle potent_handle;
 xTaskHandle thermo_handle;
+xTaskHandle currentTask;
+volatile uint16_t result;
 uint16_t readADC(uint8_t mux)
 {
-    uint16_t result;
-    ADMUX   = _BV(REFS0);
-    ADMUX |= mux;
-    ADCSRA |= _BV(ADSC); // wykonaj konwersję  
-    result = ADC;
-    xTaskHandle* ptr;
-    if(mux == MUX0)
-        ptr = &potent_handle;
-    else if(mux == MUX1)
-        ptr = &foto_handle;
-    else if(mux == MUX2)
-        ptr = &thermo_handle;
-    xTaskAbortDelay(*ptr);
-    return result; // weź zmierzoną wartość (0..1023)
+
+
+    if(xSemaphoreTake(second_place,portMAX_DELAY)==pdTRUE){
+        printf("S1: %"PRIu8"\r\n",mux);
+        if(xSemaphoreTake(first_place,portMAX_DELAY)==pdTRUE){
+            printf("S2: %"PRIu8"\r\n",mux);
+            xSemaphoreGive(second_place);
+            if(xSemaphoreTake(mutex,portMAX_DELAY)==pdTRUE){
+                printf("M: %"PRIu8"\r\n",mux);
+                xSemaphoreGive(first_place);
+                ADMUX  =_BV(REFS0) | mux;
+                if(xSemaphoreTake(adc_result,portMAX_DELAY)==pdTRUE){
+                    printf("R: %"PRIu8"\r\n",mux);
+                    uint16_t val = result;
+                    xSemaphoreGive(mutex);
+                    return val;
+                }
+            }           
+        }
+    }
+    readADC(mux);
 }
 ISR(ADC_vect) {
     ADCSRA |= _BV(ADIF);
+    result = ADC;
+    xTaskResumeFromISR(  currentTask );
+
 }
 
 /******************************************************************************
@@ -76,6 +90,9 @@ int main(void)
     adc_init();
     sei();
     mutex = xSemaphoreCreateMutex();
+    first_place = xSemaphoreCreateMutex();
+    second_place = xSemaphoreCreateMutex();    
+    while(mutex==NULL || first_place==NULL || second_place==NULL);
     // Create task.
     xTaskCreate
         (
@@ -127,15 +144,9 @@ static void vFoto(void* pvParameters)
     for (;;)
     {
         vTaskDelay(100 / portTICK_PERIOD_MS);
-        if(xSemaphoreTake(mutex, ( TickType_t ) 10)==pdTRUE){
-            uint16_t v = readADC(mux);
-            printf("FOTO: %"PRIu16"\r\n",v);
-            xSemaphoreGive(mutex);
-        }
-        else
-        {
-            vTaskDelay(portMAX_DELAY);
-        }
+        uint16_t v = readADC(mux);
+        //printf("FOTO: %"PRIu16"\r\n",v);
+
     }
 
 }
@@ -146,16 +157,10 @@ static void vPotent(void* pvParameters)
     uint8_t mux = MUX0;
     for (;;)
     {
-        vTaskDelay(400 / portTICK_PERIOD_MS);
-        if(xSemaphoreTake(mutex, ( TickType_t ) 10)==pdTRUE){
-            uint16_t v = readADC(mux);
-            printf("POTENT: %"PRIu16"\r\n",v);
-            xSemaphoreGive(mutex);
-        }
-        else
-        {
-            vTaskDelay(portMAX_DELAY);
-        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        uint16_t v = readADC(mux);
+        //printf("POTENT: %"PRIu16"\r\n",v);
+
     }
 
 }
@@ -167,16 +172,10 @@ static void vThermo(void* pvParameters)
     uint8_t mux = MUX2;
     for (;;)
     {
-        vTaskDelay(600 / portTICK_PERIOD_MS);
-        if(xSemaphoreTake(mutex, ( TickType_t ) 10)==pdTRUE){
-            uint16_t v = readADC(mux);
-            printf("THERMO: %"PRIu16"\r\n",v);
-            xSemaphoreGive(mutex);
-        }
-        else
-        {
-            vTaskDelay(portMAX_DELAY);
-        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        uint16_t v = readADC(mux);
+        //printf("THERMO: %"PRIu16"\r\n",v);
+
     }
 
 
