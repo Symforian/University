@@ -57,8 +57,8 @@ int main()
   stdin = stdout = stderr = &uart_file;
   // zainicjalizuj ADC
   adc_init();
-  //HEATER_DDR |= _BV(HEATER);
-  float current_temp = 0;
+  HEATER_DDR |= _BV(HEATER);
+  uint32_t current_temp = 0;
   uint32_t temp = 5;
   uint32_t temph = 1;
   while(1) {
@@ -69,16 +69,16 @@ int main()
         ADCSRA |= _BV(ADSC); // wykonaj konwersję
         while (!(ADCSRA & _BV(ADIF))); // czekaj na wynik
         ADCSRA |= _BV(ADIF); // wyczyść bit ADIF (pisząc 1!)
-        current_temp = (((ADC*1.1)/1024.0)-5.0)/0.1; // weź zmierzoną wartość (0..1023)
-        printf("Current temp: %f\r\n", current_temp);
+        current_temp = ((ADC*55)>>9)-50; // weź zmierzoną wartość (0..1023)
+        printf("Current temp: %"PRIu32"\r\n", current_temp);
         if(current_temp>=temp){
                 printf("Turn off heater\r\n");
-                //HEATER_PORT &= ~_BV(HEATER);
+                HEATER_PORT &= ~_BV(HEATER);
                 break;
             }
         else if(current_temp<=(temp-temph)){
                 printf("Turn on heater\r\n");
-                //HEATER_PORT |= _BV(HEATER);
+                HEATER_PORT |= _BV(HEATER);
                 break;
             }
     }
