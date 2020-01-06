@@ -76,7 +76,7 @@ ISR(TIMER1_CAPT_vect) {
 ISR(ADC_vect) {
     v = ADC; // weź zmierzoną wartość (0..1023)
     OCR1A = width[v>>6];
-    printf("%fmV\r\n",1024.0 * 1100.0 / (float)v);
+    printf("%"PRIu32"mV\r\n",1024 * 1100 / (uint32_t)(++v));
     ADCSRA |= _BV(ADIF);
 
 
@@ -100,7 +100,7 @@ int main()
   while(1)
   {
     // ustaw wypełnienie
-
+    SMCR |= _BV(SE); 
     //printf("%"PRIu16"mV\r\n",v);
     //_delay_ms(15);
   }
