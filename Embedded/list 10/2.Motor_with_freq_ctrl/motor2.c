@@ -76,11 +76,8 @@ ISR(TIMER1_CAPT_vect) {
 ISR(ADC_vect) {
     v = ADC; // weź zmierzoną wartość (0..1023)
     OCR1A = width[v>>6];
-    printf("%"PRIu32"mV\r\n",1024 * 1100 / (uint32_t)(++v));
+    printf("%"PRIu32"mV\r\n",1024 * 1100 / (uint32_t)(v ? v != 0: 1));
     ADCSRA |= _BV(ADIF);
-
-
-
 }
 FILE uart_file;
 int main()
