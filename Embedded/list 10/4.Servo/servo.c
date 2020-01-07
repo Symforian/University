@@ -34,7 +34,7 @@ int main()
   adc_init();
   // uruchom licznik
   timer1_init();
-  uint16_t const width[16] = {65,69,73,77,82,86,90,93,95,98,102,105,109,112,118,120};
+  uint16_t const width[16] = {34, 41, 49, 57, 64, 72, 80, 87, 95, 103, 110, 118, 126, 133, 141, 148};
   while(1)
   {
     // mierz napięcie
