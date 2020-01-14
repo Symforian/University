@@ -71,35 +71,34 @@ volatile uint16_t value_ovf = 0;
 //Timer/Counter1 Overflow
 ISR(TIMER1_OVF_vect) {
     flag = 0;
-    ADMUX |= _BV(MUX0);
     ADCSRA |= _BV(ADSC); // wykonaj konwersję
 }
 //Timer/Counter1 Capture Event
 ISR(TIMER1_CAPT_vect) {
     flag = 1;
-    ADMUX |= _BV(MUX0);
     ADCSRA |= _BV(ADSC);// wykonaj konwersję
 
 }
 ISR(ADC_vect) {
     v = ADC; // weź zmierzoną wartość (0..1023)
+    ADMUX &= ~_BV(MUX0);
     if(flag == 0){
       value_ovf = v;
-      flag_pot = 1;
-    }
-    else if (flag == 1){
-        value_cap = v;
-        flag_pot = 1;
-    }
-    else {
-      OCR1A = width[v>>6];
-    }
-    if(flag_pot == 1){
       flag = 2;
-      flag_pot = 0;
-      ADMUX &= ~_BV(MUX0);
       ADCSRA |= _BV(ADSC); // wykonaj konwersję
     }
+    else if (flag == 1){
+      value_cap = v;
+      flag = 2;
+      ADCSRA |= _BV(ADSC); // wykonaj konwersję
+    }
+    else if(flag == 2){
+      OCR1A = width[v>>6];
+      ADMUX |= _BV(MUX0);
+      flag  = 3;
+    }
+
+
 }
 FILE uart_file;
 int main()
