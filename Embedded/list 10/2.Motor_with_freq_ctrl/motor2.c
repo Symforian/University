@@ -36,7 +36,7 @@ int uart_receive(FILE *stream)
 void adc_init()
 {
   ADMUX   = _BV(REFS0); // referencja AVcc, wejście ADC0
-  DIDR0   = _BV(ADC0D); // wyłącz wejście cyfrowe na ADC0
+  DIDR0   = _BV(ADC0D) | _BV(ADC1D); // wyłącz wejście cyfrowe na ADC0
   // częstotliwość zegara ADC 125 kHz (16 MHz / 128)
   ADCSRA  = _BV(ADPS0) | _BV(ADPS1) | _BV(ADPS2); // preskaler 128
   // adc interrupt enable
@@ -54,6 +54,7 @@ void timer1_init()
   // ICR1  = 60
   // częstotliwość 16e6/(256*2*60) = 520 Hz
   ICR1 = 60;
+  OCR1A = ICR1/2;
   TCCR1A = _BV(COM1A1);
   TCCR1B = _BV(WGM13)| _BV(CS12);;
   // enable capture and overflow interrupts
@@ -63,21 +64,42 @@ void timer1_init()
 }
 uint16_t const width[16] = {3, 7, 11, 15, 18, 22, 26, 30, 33, 37, 41, 45, 48, 52, 56, 60};
 volatile uint16_t v = 0;
+volatile uint8_t flag = 0;
+volatile uint8_t flag_pot = 0;
+volatile uint16_t value_cap = 0;
+volatile uint16_t value_ovf = 0;
 //Timer/Counter1 Overflow
 ISR(TIMER1_OVF_vect) {
+    flag = 0;
+    ADMUX |= _BV(MUX0);
     ADCSRA |= _BV(ADSC); // wykonaj konwersję
-    TIFR1 |= _BV(TOV1);
 }
 //Timer/Counter1 Capture Event
 ISR(TIMER1_CAPT_vect) {
+    flag = 1;
+    ADMUX |= _BV(MUX0);
     ADCSRA |= _BV(ADSC);// wykonaj konwersję
-    TIFR1 |= _BV(ICF1);
+
 }
 ISR(ADC_vect) {
     v = ADC; // weź zmierzoną wartość (0..1023)
-    OCR1A = width[v>>6];
-    printf("%"PRIu32"mV\r\n",1024 * 1100 / (uint32_t)(v ? v != 0: 1));
-    ADCSRA |= _BV(ADIF);
+    if(flag == 0){
+      value_ovf = v;
+      flag_pot = 1;
+    }
+    else if (flag == 1){
+        value_cap = v;
+        flag_pot = 1;
+    }
+    else {
+      OCR1A = width[v>>6];
+    }
+    if(flag_pot == 1){
+      flag = 2;
+      flag_pot = 0;
+      ADMUX &= ~_BV(MUX0);
+      ADCSRA |= _BV(ADSC); // wykonaj konwersję
+    }
 }
 FILE uart_file;
 int main()
@@ -98,6 +120,7 @@ int main()
   {
     // ustaw wypełnienie
     SMCR |= _BV(SE); 
+    printf("capt:%"PRIu32"mV\tovfl:%"PRIu32"mV\r\n",(uint32_t)(value_cap *(5000.0/1024.0)), (uint32_t)(value_ovf *(5000.0/1024.0)));
     //printf("%"PRIu16"mV\r\n",v);
     //_delay_ms(15);
   }
